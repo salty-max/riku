@@ -1,0 +1,9 @@
+{
+  "editor.defaultFormatter": "rome.rome",
+  "prettier.enable": false,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "quickfix.rome": true,
+    "source.organizeImports": true
+  },
+}
