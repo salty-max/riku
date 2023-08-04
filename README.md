@@ -6,32 +6,66 @@ Riku is an 8-bit console inspired by the Game Boy. It uses a simple CPU with 8-b
 
 The CPU includes the following registers:
 
-- 8-bit general purpose registers (R0-R7)
+- 8-bit general purpose registers (RX | RY)
+- 8-bit accumulator register (A)
 - 8-bit flag register (FR)
+- 8-bit instruction register (IR)
 - 16-bit program counter (PC)
 - 16-bit stack pointer (SP)
 - 16-bit frame pointer (FP)
-- 16-bit memory address register (MAR)
-- 16-bit memory data register (MDR)
-- 16-bit VBlank interrupt enable register (IE_VBLANK)
-- 16-bit general interrupt enable register (IE)
+- 16-bit interrupt enable register (IE)
+- 16-bit interrupt flag register (IF)
+
+### Registers
+
+#### R0
+A read-only register which always returns 0
+#### RX, RY
+General purpose registers
+#### A
+Accumulator register
+#### FR
+Flag register. Each bit is a specific flag.
+- C = Carry
+- Z = Zero
+- Unused
+- D = Decimal mode
+- Unused
+- Unused
+- O = Overflow
+- N = Negative
+#### IR
+Instruction register (for debugging)
+#### PC
+Program counter
+#### SP
+Stack pointer
+#### FP
+Frame pointer for subroutines
+#### IE
+Interrupt enable. If set, a interrupt is handled atm.
+#### IF
+Interrupt flag. Each bit correspond to a specific interrupt being requested
+- V_BLANK (Screen draw interrupt)
 
 ## Memory Map
 
 The memory map of the console is as follows:
 
-| Range     | Description                           | Size                 |
-|-----------|---------------------------------------|----------------------|
-| 0x0000 - 0x00FF | Boot ROM                            | 256 bytes (0.25 KB) |
-| 0x0100 - 0x3FFF | ROM bank 0                          | 16384 bytes (16 KB) |
-| 0x4000 - 0x7FFF | Switchable ROM bank (if needed)     | 16384 bytes (16 KB) |
-| 0x8000 - 0x9FFF | Video RAM                           | 8192 bytes (8 KB)   |
-| 0xA000 - 0xA3FF | Cartridge save data                 | 1024 bytes (1 KB)   |
-| 0xA400 - 0xDFFF | Internal RAM                        | 14080 bytes (13.75 KB) |
-| 0xFE00 - 0xFE9F | Sprite attribute table              | 160 bytes           |
-| 0xFF00 - 0xFF7F | Memory-mapped I/O                   | 128 bytes           |
-| 0xFFFE          | VBlank Interrupt Enable register    | 1 byte              |
-| 0xFFFF          | General Interrupt Enable register   | 1 byte              |
+| Address Range       | Description                           | Size                 |
+|---------------------|---------------------------------------|----------------------|
+| 0x0000 - 0x00FF     | Zero Page                             | 256 bytes (0.25 KB)  |
+| 0x0100 - 0x01FF     | Stack                                 | 256 bytes (0.25 KB)  |
+| 0x0200 - 0x02FF     | I/O Registers                         | 256 bytes (0.25 KB)  |              
+| 0x0300 - 0x43FF     | ROM bank 0                            | 16384 bytes (16 KB)  |
+| 0x4400 - 0x63FF     | Switchable ROM bank (if needed)       | 8192 bytes (8 KB)    |
+| 0x6400 - 0x67FF     | Cartridge save data                   | 1024 bytes (1 KB)    |          
+| 0x6800 - 0xA7FF     | Internal RAM                          | 24576 bytes (24 KB)  |
+| 0xA800 - 0xB1FF     | VRAM                                  | 1024 bytes (1 KB)    |  
+| 0xB200 - 0xB3FF     | Sprite attribute table                | 512 bytes (0.5 KB)   |                
+| 0xB400 - 0xC3FF     | SID Registers                         | 4096 bytes (4 KB)    |         
+| 0xC400 - 0xDFFF     | Unused                                | 768 bytes (0.75 KB)  |         
+| 0xE000 - 0xFFFF     | Kernel ROM                            | 8192 bytes (8 KB)    |      
 
 ## GPU
 
@@ -51,7 +85,13 @@ The GPU uses the HTML canvas for rendering, and communicates with the CPU via a 
 | Opcode | Instruction       | Description                            | Operand Size |
 |--------|-------------------|----------------------------------------|--------------|
 | 0x00   | NOP               | No operation                           | None         |
-| 0x10   | MOV RX, RY        | Move value from RY to RX               | 8-bit        |
+| 0x10   | MOV RX, RY        | Move value from RY to RX               | 16-bit        |
+| 0x12   | LDA imm           | Load 8-bit immediate value to A       | 8-bit        |
+| 0x13   | LDA zero_page     | Load 8-bit from zero page address to A       | 16-bit        |
+| 0x14   | LDA zero_page, X  | Load 8-bit from zero page address + offset from X to A       | 16-bit        |
+| 0x15   | LDA absolute      | Load 8-bit value from memory address to A    | 24-bit       |
+| 0x16   | LDA absolute, X   | Load 8-bit value from memory address + offset from X to A     | 24-bit       |
+| 0x17   | LDA absolute, Y   | Load 8-bit value from memory address + offset from Y to A     | 24-bit       |
 | 0x11   | LDR RX, imm       | Load 8-bit immediate value to RX       | 8-bit        |
 | 0x12   | LDR RX, addr      | Load 8-bit value from memory to RX     | 16-bit       |
 | 0x13   | STR RX, addr      | Store 8-bit value in RX into memory    | 16-bit       |

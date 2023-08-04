@@ -9,7 +9,13 @@
     ]
   },
   "linter": {
-    "enabled": true
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noDebugger": "off"
+      }
+    }
   },
   "organizeImports": {
     "enabled": true
