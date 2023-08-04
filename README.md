@@ -57,14 +57,14 @@ The memory map of the console is as follows:
 | 0x0000 - 0x00FF     | Zero Page                             | 256 bytes (0.25 KB)  |
 | 0x0100 - 0x01FF     | Stack                                 | 256 bytes (0.25 KB)  |
 | 0x0200 - 0x02FF     | I/O Registers                         | 256 bytes (0.25 KB)  |              
-| 0x0300 - 0x43FF     | ROM bank 0                            | 16384 bytes (16 KB)  |
-| 0x4400 - 0x63FF     | Switchable ROM bank (if needed)       | 8192 bytes (8 KB)    |
-| 0x6400 - 0x67FF     | Cartridge save data                   | 1024 bytes (1 KB)    |          
-| 0x6800 - 0xA7FF     | Internal RAM                          | 24576 bytes (24 KB)  |
-| 0xA800 - 0xB1FF     | VRAM                                  | 1024 bytes (1 KB)    |  
-| 0xB200 - 0xB3FF     | Sprite attribute table                | 512 bytes (0.5 KB)   |                
-| 0xB400 - 0xC3FF     | SID Registers                         | 4096 bytes (4 KB)    |         
-| 0xC400 - 0xDFFF     | Unused                                | 768 bytes (0.75 KB)  |         
+| 0x0300 - 0x42FF     | ROM bank 0                            | 16384 bytes (16 KB)  |
+| 0x4300 - 0x62FF     | Switchable ROM bank (if needed)       | 8192 bytes (8 KB)    |
+| 0x6300 - 0x66FF     | Cartridge save data                   | 1024 bytes (1 KB)    |          
+| 0x6700 - 0xC6FF     | Internal RAM                          | 24576 bytes (24 KB)  |
+| 0xC&00 - 0xCAFF     | VRAM                                  | 1024 bytes (1 KB)    |  
+| 0xCB00 - 0xCCFF     | Sprite attribute table                | 512 bytes (0.5 KB)   |                
+| 0xCD00 - 0xDCFF     | SID Registers                         | 4096 bytes (4 KB)    |         
+| 0xDD00 - 0xDFFF     | Unused                                | 768 bytes (0.75 KB)  |         
 | 0xE000 - 0xFFFF     | Kernel ROM                            | 8192 bytes (8 KB)    |      
 
 ## GPU

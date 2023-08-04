@@ -114,6 +114,7 @@ export default class CPU {
         const value = this.fetch();
         const A = this._registers[Register.A];
         const FR = this._registers[Register.FR];
+        
         A.value = value;
         if (A.value === 0) {
           FR.value |= 0b01000000;
@@ -121,6 +122,23 @@ export default class CPU {
         if (A.value & 0b10000000) {
           FR.value |= 0b00000001;
         }
+
+        break;
+      }
+      case instructions.LDA_ZP.opcode: {
+        const addr = this.fetch();
+        const value = this._memory.read(addr);
+        const A = this._registers[Register.A];
+        const FR = this._registers[Register.FR];
+
+        A.value = value;
+        if (A.value === 0) {
+          FR.value |= 0b01000000;
+        }
+        if (A.value & 0b10000000) {
+          FR.value |= 0b00000001;
+        }
+        
         break;
       }
       default:

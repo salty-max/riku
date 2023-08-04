@@ -1,4 +1,5 @@
 export interface Memory {
+  ab: ArrayBuffer
   byteLength: number;
   read(address: number): number;
   read16(address: number): number;
@@ -12,6 +13,7 @@ export interface Memory {
 export const createRAM = (size: number): Memory => {
   const memory = new DataView(new ArrayBuffer(size));
   return {
+    ab: memory.buffer,
     byteLength: memory.byteLength,
     read: memory.getUint8.bind(memory),
     read16: memory.getUint16.bind(memory),
@@ -34,6 +36,7 @@ export const createRAM = (size: number): Memory => {
 export const createROM = (size: number): Memory => {
   const memory = new DataView(new ArrayBuffer(size));
   return {
+    ab: memory.buffer,
     byteLength: memory.byteLength,
     read: memory.getUint8.bind(memory),
     read16: memory.getUint16.bind(memory),
