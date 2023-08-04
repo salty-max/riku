@@ -77,7 +77,7 @@ export default class MemoryMapper {
     const region = this.findRegion(address);
     const offset = region.remap ? address - region.start : address;
     try {
-      return region.device.read16(offset);
+      return region.device.read16(offset, true);
     } catch (ex) {
       console.error(
         `Attempted read from address 0x${address.toString(
@@ -110,7 +110,7 @@ export default class MemoryMapper {
     const region = this.findRegion(address);
     const offset = region.remap ? address - region.start : address;
     try {
-      region.device.write16(offset, value);
+      region.device.write16(offset, value, true);
     } catch (ex) {
       console.error(
         `Attempted write to address 0x${address.toString(

@@ -1,10 +1,10 @@
 export interface Memory {
   ab: ArrayBuffer
   byteLength: number;
-  read(address: number): number;
-  read16(address: number): number;
-  write(address: number, value: number): void;
-  write16(address: number, value: number): void;
+  read(offset: number): number;
+  read16(offset: number, littleEndian?: boolean): number;
+  write(offset: number, value: number): void;
+  write16(offset: number, value: number, littleEndian?: boolean): void;
   load(data: Uint8Array, offset?: number): void;
   slice(start: number, end: number): Uint8Array;
   reset(): void;

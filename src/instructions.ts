@@ -12,4 +12,5 @@ export const instructions: Record<string, Instruction> = {
   LDA_ABS: { opcode: 0xad, ticks: 4, size: 3 },
   LDA_ABS_X: { opcode: 0xbd, ticks: 4, size: 3 },
   LDA_ABS_Y: { opcode: 0xb9, ticks: 4, size: 3 },
+  JSR: { opcode: 0x20, ticks: 6, size: 3 },
 };

@@ -46,7 +46,7 @@ export class Register16 {
   }
 }
 
-export const initRegisters = (): RegisterMap => ({
+export const createRegisters = (): RegisterMap => ({
   [Register.R0]: new Register8(0),
   [Register.RX]: new Register8(0),
   [Register.RY]: new Register8(0),

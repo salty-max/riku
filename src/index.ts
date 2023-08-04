@@ -17,6 +17,7 @@ import {
   SPRITE_TABLE_START,
   STACK_END,
   STACK_SIZE,
+  STACK_START,
   VRAM_SIZE,
   VRAM_START,
   ZP_SIZE,
@@ -25,6 +26,8 @@ import {
 import CPU from './cpu';
 import { createRAM, createROM } from './memory';
 import MemoryMapper from './memory-mapper';
+import { Register } from './register';
+import { toHexString } from './util';
 
 // const program = new Uint8Array([
 //   0xa5,
@@ -84,9 +87,14 @@ class Riku {
     //     this._cpu.requestInterrupt(VBLANK_INTERRUPT);
     //   }
     // }
-    this._MM.write(0x42, 0x84);
-    this._MM.load(new Uint8Array([0xA5, 0x42]), ROM_START);
+    this._MM.load(new Uint8Array([0x20, 0x43, 0x42]), ROM_START);
+    this._MM.load(new Uint8Array([0xA9, 0x42]), 0x4243);
     this._cpu.cycle();
+    this._cpu.cycle();
+
+    console.log("A", toHexString(this._cpu.readRegister(Register.A)));
+    console.log("SP", toHexString(this._cpu.readRegister(Register.SP)));
+    this._cpu.viewMemoryAt(STACK_START - 9, 10)
 
     // TODO: DRAW
 

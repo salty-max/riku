@@ -7,19 +7,38 @@ import {
 } from './constants';
 import { instructions } from './instructions';
 import MemoryMapper from './memory-mapper';
-import { Register, RegisterMap, initRegisters } from './register';
+import { Register, RegisterMap, createRegisters } from './register';
+import { toHexString } from './util';
 
 export default class CPU {
   private _memory: MemoryMapper;
   private _registers: RegisterMap;
+  private _stackFrameSize = 0
 
   constructor(mm: MemoryMapper) {
     this._memory = mm;
 
-    this._registers = initRegisters();
+    this._registers = createRegisters();
+    this.initRegisters()
+  }
+
+  viewMemoryAt(address: number, n = 8) {
+    // 0x0f01: 0x04 0x05 0xA3 0xFE 0x13 0x0D 0x44 0x0F ...
+    const nextNBytes = Array.from({ length: n }, (_, i) =>
+      this._memory.read(address + i)
+    ).map((v) => `${toHexString(v)}`)
+
+    console.log(
+      `memory @ ${toHexString(address, 4)}: ${nextNBytes.join(
+        ' '
+      )}`
+    )
+  }
+
+  initRegisters() {
     this._registers[Register.PC].value = ROM_START;
-    this._registers[Register.SP].value = STACK_START;
-    this._registers[Register.FP].value = STACK_START;
+    this._registers[Register.SP].value = STACK_START - 1;
+    this._registers[Register.FP].value = STACK_START - 1;
   }
 
   readRegister(index: Register): number {
@@ -51,15 +70,17 @@ export default class CPU {
   }
 
   push(value: number) {
-    const sp = this.readRegister(Register.SP);
-    this._memory.write16(sp, value);
-    this.writeRegister(Register.SP, sp - 2);
+    const spAddr = this.readRegister(Register.SP);
+    this._memory.write16(spAddr, value);
+    this.writeRegister(Register.SP, spAddr - 2);
+    this._stackFrameSize += 2
   }
 
   pop(): number {
-    const sp = this.readRegister(Register.SP);
-    this.writeRegister(Register.SP, sp + 2);
-    return this._registers[Register.SP].value;
+    const nextSPAdrr = this.readRegister(Register.SP) + 2;
+    this.writeRegister(Register.SP, nextSPAdrr);
+    this._stackFrameSize -= 2
+    return this._memory.read16(nextSPAdrr);
   }
 
   requestInterrupt(interrupt: number) {
@@ -104,6 +125,18 @@ export default class CPU {
     }
   }
 
+  ldaSetFlags() {
+    const A = this._registers[Register.A];
+    const FR = this._registers[Register.FR];
+
+    if (A.value === 0) {
+      FR.value |= 0b01000000;
+    }
+    if ((A.value & 0b10000000) > 0) {
+      FR.value |= 0b00000001;
+    }
+  }
+
   cycle() {
     const ins = this.fetchInstruction();
     switch (ins) {
@@ -112,33 +145,27 @@ export default class CPU {
       }
       case instructions.LDA_IMM.opcode: {
         const value = this.fetch();
-        const A = this._registers[Register.A];
-        const FR = this._registers[Register.FR];
-        
-        A.value = value;
-        if (A.value === 0) {
-          FR.value |= 0b01000000;
-        }
-        if (A.value & 0b10000000) {
-          FR.value |= 0b00000001;
-        }
+
+        this._registers[Register.A].value = value;
+        this.ldaSetFlags();
 
         break;
       }
       case instructions.LDA_ZP.opcode: {
         const addr = this.fetch();
         const value = this._memory.read(addr);
-        const A = this._registers[Register.A];
-        const FR = this._registers[Register.FR];
-
-        A.value = value;
-        if (A.value === 0) {
-          FR.value |= 0b01000000;
-        }
-        if (A.value & 0b10000000) {
-          FR.value |= 0b00000001;
-        }
         
+        this._registers[Register.A].value = value;
+        this.ldaSetFlags();
+
+        break;
+      }
+      case instructions.JSR.opcode: {
+        const subAddr = this.fetch16();
+        
+        this.push(this.readRegister(Register.PC));
+        this.writeRegister(Register.PC, subAddr);
+
         break;
       }
       default:
@@ -148,9 +175,6 @@ export default class CPU {
   }
 
   reset() {
-    this._registers = initRegisters();
-    this._registers[Register.PC].value = ROM_START;
-    this._registers[Register.SP].value = STACK_START;
-    this._registers[Register.FP].value = STACK_START;
+    this.initRegisters()
   }
 }
